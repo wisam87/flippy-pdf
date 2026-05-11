@@ -1,0 +1,397 @@
+/* =========================================================
+   Issuu-style Flipbook — reusable widget styles
+   All classes are namespaced with `ic-` to avoid collisions.
+   ========================================================= */
+
+.ic-root {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  /* Defensive fallback: if the parent layout fails to give us a definite
+     height (common with chained flex containers using `flex: 1 1 auto`),
+     fall back to a viewport-relative height so we never collapse to 0. */
+  min-height: min(80vh, 720px);
+  min-width: 320px;
+  /* If we're a flex item ourselves, also grow to fill. */
+  flex: 1 1 auto;
+  background: linear-gradient(180deg, #1a1d24 0%, #0f1115 100%);
+  color: #e6e8ee;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.ic-root.ic-fullscreen {
+  width: 100vw;
+  height: 100vh;
+}
+
+/* ----------- single-page (mobile/tablet) overrides ----------- */
+
+.ic-root.ic-single-page .ic-page-left,
+.ic-root.ic-single-page .ic-spine-shadow,
+.ic-root.ic-single-page .ic-leaf-back {
+  /* No spine, no left page, no back-of-leaf in slide mode. */
+  display: none !important;
+}
+
+.ic-root.ic-single-page .ic-book::after {
+  /* No spine line. */
+  display: none;
+}
+
+.ic-root.ic-single-page .ic-leaf {
+  /* The leaf covers the entire single-page book and slides instead of flipping. */
+  left: 0;
+  width: 100%;
+  transform-origin: 0 0;
+}
+
+/* ----------- stage ----------- */
+
+.ic-stage {
+  position: relative;
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 2400px;
+  perspective-origin: 50% 50%;
+  overflow: hidden;
+}
+
+.ic-canvas {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-style: preserve-3d;
+}
+
+/* ----------- book ----------- */
+
+.ic-book {
+  position: relative;
+  display: flex;
+  background: #2a2d35;
+  box-shadow:
+    0 30px 60px -20px rgba(0, 0, 0, 0.7),
+    0 18px 36px -18px rgba(0, 0, 0, 0.55),
+    0 4px 12px rgba(0, 0, 0, 0.35);
+  border-radius: 2px;
+  transform-style: preserve-3d;
+}
+
+/* spine line */
+.ic-book::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(0, 0, 0, 0.35);
+  transform: translateX(-0.5px);
+  pointer-events: none;
+  z-index: 4;
+}
+
+/* ----------- pages ----------- */
+
+.ic-page {
+  position: relative;
+  flex: 1 1 50%;
+  background-color: #fff;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  overflow: hidden;
+}
+
+.ic-page-empty {
+  background-color: transparent;
+  background-image: none !important;
+}
+
+.ic-page-pending {
+  background-color: #f5f5f7;
+}
+
+.ic-page-pending::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    rgba(255, 255, 255, 0) 30%,
+    rgba(0, 0, 0, 0.04) 50%,
+    rgba(255, 255, 255, 0) 70%
+  );
+  background-size: 200% 100%;
+  animation: ic-shimmer 1.6s linear infinite;
+}
+
+@keyframes ic-shimmer {
+  0%   { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+/* spine shadow on each static page */
+.ic-spine-shadow {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 22%;
+  pointer-events: none;
+  z-index: 2;
+}
+.ic-spine-shadow-left {
+  right: 0;
+  background: linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.18) 100%);
+}
+.ic-spine-shadow-right {
+  left: 0;
+  background: linear-gradient(to left, transparent 0%, rgba(0, 0, 0, 0.18) 100%);
+}
+
+/* ----------- the flipping leaf ----------- */
+
+.ic-leaf {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 50%;
+  height: 100%;
+  transform-origin: 0% 50%;
+  transform-style: preserve-3d;
+  display: none;
+  z-index: 6;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.ic-leaf[data-state="flipping"],
+.ic-leaf[data-state="dragging"] {
+  display: block;
+}
+
+.ic-leaf-face {
+  position: absolute;
+  inset: 0;
+  background-color: #fff;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-shadow:
+    0 0 1px rgba(0, 0, 0, 0.2),
+    0 8px 16px rgba(0, 0, 0, 0.18);
+}
+
+.ic-leaf-back {
+  transform: rotateY(180deg);
+}
+
+/* gloss / spine shadow on the leaf surfaces */
+.ic-leaf-gloss {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.ic-leaf-front .ic-leaf-gloss {
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.22) 0%,
+    rgba(0, 0, 0, 0.06) 12%,
+    rgba(0, 0, 0, 0) 30%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+}
+.ic-leaf-back .ic-leaf-gloss {
+  background: linear-gradient(
+    to left,
+    rgba(0, 0, 0, 0.22) 0%,
+    rgba(0, 0, 0, 0.06) 12%,
+    rgba(0, 0, 0, 0) 30%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+}
+
+/* ----------- side nav ----------- */
+
+.ic-side {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 10;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  opacity: 0.7;
+  transition: opacity 0.18s ease, background 0.18s ease, transform 0.18s ease;
+}
+.ic-side-prev { left: 24px; }
+.ic-side-next { right: 24px; }
+.ic-side:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.16);
+}
+.ic-side:active {
+  transform: translateY(-50%) scale(0.96);
+}
+.ic-side-disabled {
+  opacity: 0.2 !important;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* ----------- toolbar ----------- */
+
+.ic-toolbar {
+  position: relative;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 18px;
+  background: rgba(20, 22, 28, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  z-index: 11;
+}
+
+.ic-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  color: #d8dbe2;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+.ic-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+.ic-btn:active:not(:disabled) {
+  transform: scale(0.94);
+}
+.ic-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.ic-divider {
+  width: 1px;
+  height: 22px;
+  background: rgba(255, 255, 255, 0.12);
+  margin: 0 6px;
+}
+
+.ic-page-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px;
+  font-size: 13px;
+  color: #cfd2d9;
+  font-variant-numeric: tabular-nums;
+}
+
+.ic-page-input {
+  width: 48px;
+  padding: 6px 8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  font: inherit;
+  font-size: 13px;
+  text-align: center;
+  -moz-appearance: textfield;
+}
+.ic-page-input::-webkit-outer-spin-button,
+.ic-page-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.ic-page-input:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.ic-page-total {
+  color: #9aa0ab;
+  font-size: 13px;
+}
+
+/* ----------- loader ----------- */
+
+.ic-loader {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+  background: rgba(15, 17, 21, 0.85);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 50;
+}
+
+.ic-loader-show {
+  display: flex;
+}
+
+.ic-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(255, 255, 255, 0.15);
+  border-top-color: rgba(255, 255, 255, 0.85);
+  border-radius: 50%;
+  animation: ic-spin 0.9s linear infinite;
+}
+
+@keyframes ic-spin {
+  to { transform: rotate(360deg); }
+}
+
+.ic-loader-text {
+  font-size: 14px;
+  color: #b6bac3;
+  letter-spacing: 0.01em;
+}
+
+/* ----------- responsive tweaks ----------- */
+
+@media (max-width: 720px) {
+  .ic-side { width: 44px; height: 44px; }
+  .ic-side-prev { left: 10px; }
+  .ic-side-next { right: 10px; }
+  .ic-toolbar { padding: 10px 8px; gap: 2px; }
+  .ic-btn { width: 32px; height: 32px; }
+  .ic-page-input { width: 40px; }
+}

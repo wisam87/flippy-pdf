@@ -1,0 +1,61 @@
+{
+  "name": "flippy-pdf",
+  "version": "0.1.0",
+  "description": "A reusable, framework-free Issuu-style PDF flipbook viewer with two-page spreads, drag-to-flip, and a responsive single-page mode for mobile.",
+  "type": "module",
+  "main": "./src/index.js",
+  "module": "./src/index.js",
+  "exports": {
+    ".": {
+      "import": "./src/index.js",
+      "default": "./src/index.js"
+    },
+    "./style.css": "./src/flipbook.css",
+    "./package.json": "./package.json"
+  },
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "serve": "vite",
+    "start": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "pdf",
+    "flipbook",
+    "issuu",
+    "magazine",
+    "viewer",
+    "pdfjs",
+    "page-flip",
+    "pdf-viewer"
+  ],
+  "author": "mwisam <mohamed.wisam87@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wisam87/flippy-pdf.git"
+  },
+  "bugs": {
+    "url": "https://github.com/wisam87/flippy-pdf/issues"
+  },
+  "homepage": "https://github.com/wisam87/flippy-pdf#readme",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "pdfjs-dist": "^4.7.76"
+  },
+  "devDependencies": {
+    "vite": "^5.4.10"
+  }
+}

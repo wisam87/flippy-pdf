@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <title>Flipbook — Issuu-style PDF Viewer</title>
+    <link rel="stylesheet" href="/src/flipbook.css" />
+    <style>
+      :root {
+        --bg-0: #0b0d12;
+        --bg-1: #11141b;
+        --fg-0: #f3f4f7;
+        --fg-1: #a4a8b3;
+        --accent: #ff5f5f;
+      }
+      * { box-sizing: border-box; }
+      html, body {
+        margin: 0;
+        padding: 0;
+        background: var(--bg-0);
+        color: var(--fg-0);
+        font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI",
+          Roboto, "Helvetica Neue", Arial, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      body {
+        /* Grid gives the middle row a definite height (1fr) without depending
+           on a chain of flex-basis: auto resolutions. */
+        height: 100vh;
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        overflow: hidden;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 18px 28px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        background: rgba(255, 255, 255, 0.02);
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 700;
+        letter-spacing: 0.01em;
+        font-size: 16px;
+      }
+      .brand-mark {
+        display: inline-flex;
+        width: 28px;
+        height: 28px;
+        align-items: center;
+        justify-content: center;
+        background: var(--accent);
+        color: white;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 800;
+      }
+      .meta {
+        font-size: 13px;
+        color: var(--fg-1);
+      }
+      .meta kbd {
+        display: inline-block;
+        padding: 2px 6px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 11px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom-width: 2px;
+        border-radius: 4px;
+        color: var(--fg-0);
+      }
+      main {
+        min-height: 0;
+        min-width: 0;
+        overflow: hidden;
+        display: flex;
+      }
+      #flipbook {
+        flex: 1 1 0;
+        min-height: 0;
+        min-width: 0;
+      }
+      footer {
+        padding: 10px 28px;
+        font-size: 12px;
+        color: var(--fg-1);
+        text-align: center;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      footer a {
+        color: var(--fg-0);
+        text-decoration: none;
+        border-bottom: 1px dotted rgba(255, 255, 255, 0.2);
+      }
+      @media (max-width: 640px) {
+        header { padding: 12px 16px; }
+        .meta { display: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="brand">
+        <span class="brand-mark">F</span>
+        <span>Flipbook</span>
+      </div>
+      <div class="meta">
+        <kbd>←</kbd> <kbd>→</kbd> to flip · <kbd>F</kbd> fullscreen · drag a page
+      </div>
+    </header>
+    <main>
+      <div id="flipbook"></div>
+    </main>
+    <footer>
+      Reusable Issuu-style PDF flipbook · powered by
+      <a href="https://mozilla.github.io/pdf.js/" target="_blank" rel="noreferrer">PDF.js</a>
+    </footer>
+
+    <script type="module">
+      import { Flipbook, setWorkerSrc } from '/src/flipbook.js';
+      // Use the locally bundled PDF.js worker for the demo so dev mode
+      // works offline. (A consumer of the npm package can omit this and
+      // rely on the bundled CDN default, or configure their own URL.)
+      import workerUrl from 'pdfjs-dist/build/pdf.worker.mjs?url';
+      setWorkerSrc(workerUrl);
+
+      const fb = new Flipbook({ container: '#flipbook' });
+      fb.load('/sample.pdf');
+      window.flipbook = fb;
+    </script>
+  </body>
+</html>
