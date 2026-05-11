@@ -1,6 +1,6 @@
 {
   "name": "flippy-pdf",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "A reusable, framework-free Issuu-style PDF flipbook viewer with two-page spreads, drag-to-flip, and a responsive single-page mode for mobile.",
   "type": "module",
   "main": "./src/index.js",
